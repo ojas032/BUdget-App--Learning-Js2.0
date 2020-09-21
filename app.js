@@ -142,6 +142,7 @@ var UIcontroller=(function(){
             newhtml=newhtml.replace('%value%',obj.val);
 
             document.querySelector(elememt).insertAdjacentHTML('beforeend',newhtml);
+            //hello i made an error
 
         },
 
