@@ -38,7 +38,7 @@ var budgetController=(function(){
     return{
         additem:function(type,des,val){
             var newitem,ID=1;
-            console.log(data.allitems[type].length);
+            //console.log(data.allitems[type].length);
             if(data.allitems[type].length>=1){
             ID=data.allitems[type][data.allitems[type].length-1].id+1;
             }
@@ -80,7 +80,18 @@ var budgetController=(function(){
             }
         },
 
-       
+        deleteItem:function(type,id){
+            var ids,index;
+            ids=data.allitems[type].map(function(current){
+                return (current.id);
+            });
+            index=ids.indexOf(id);
+            if(index!==-1){
+            data.allitems[type].splice(index,1);
+            }
+
+        },
+
 
         testing:function(){
             return data;
@@ -101,6 +112,7 @@ var UIcontroller=(function(){
         budget_expense:'.budget__expenses--value',
         budget_value:'.budget__value',
         budget_percentage:'.budget__expenses--percentage',
+        container:'.container',
 
     };
 
@@ -118,11 +130,11 @@ var UIcontroller=(function(){
 
             if(type=='inc'){
                 elememt=DomString.income_list;
-                html='<div class="item clearfix" id="income-%id%"><div class="item__description">%desc%</div><div class="right clearfix"><div class="item__value">+ %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+                html='<div class="item clearfix" id="inc-%id%"><div class="item__description">%desc%</div><div class="right clearfix"><div class="item__value">+ %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
             }
             else{
                 elememt=DomString.expense_list;
-                html='<div class="item clearfix" id="expense-%id%"><div class="item__description">%desc%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+                html='<div class="item clearfix" id="exp-%id%"><div class="item__description">%desc%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
             }
 
             newhtml=html.replace('%id%',obj.id);
@@ -141,6 +153,10 @@ var UIcontroller=(function(){
             
         },
 
+        deleteListItem:function(selectorId){
+            var el=document.getElementById(selectorId);
+            el.parentNode.removeChild(el);
+        },
 
         clearFields:function(){
             var fields,fieldsArr;
@@ -170,7 +186,6 @@ var controller =(function(UIctlr,budgetctlr){
         budgetctlr.calulateBudget();
         budget=budgetctlr.getBudget();
         UIctlr.displayBudget(budget);
-        console.log(budget);
     }
 
     var ctrlAddItem=function(){
@@ -186,12 +201,28 @@ var controller =(function(UIctlr,budgetctlr){
         //console.log("it works");
     }   
 
-    document.querySelector(DomString.btn).addEventListener('click',ctrlAddItem);
+    var ctrlDeleteItem=function(event){
+        var p=event.target.parentNode.parentNode.parentNode.parentNode.id;
+        if(p){
+            var s=p.split('-');
+            var type=s[0];
+            var ID=parseInt(s[1]);
+
+            budgetController.deleteItem(type,ID);
+            UIctlr.deleteListItem(p);
+            updateBudget();
+        }
+
+    }
+    
+    document.querySelector(DomString.btn).addEventListener('click',ctrlAddItem,true);
     document.addEventListener('keydown',function(event){
         if(event.keyCode==13){
             ctrlAddItem();
         }
     });
+    document.querySelector(DomString.container).addEventListener('click',ctrlDeleteItem);
+
 
 
     return{
